@@ -1,6 +1,6 @@
-# Paralelização de Loops
+# OpenMP
 
-## Paralelizando Loops com Iterações Independentes
+### Paralelizando Loops com Iterações Independentes
 
 Muitos programas intensivos de CPU passam a maior parte do tempo em loops, tornando-os candidatos ideais para paralelização. O OpenMP fornece a **diretiva `#pragma omp parallel for`** como uma maneira conveniente de paralelizar tais loops. Quando esta diretiva é aplicada, as iterações do loop são divididas entre e executadas por múltiplas threads em uma equipe. A thread que encontra a diretiva torna-se a thread mestre, e outras threads "escravas" são criadas para formar uma equipe. Uma vez que todas as iterações são executadas, uma barreira implícita no final do loop `omp parallel for` garante que todas as threads se sincronizem e as threads escravas sejam terminadas, com a thread mestre retomando a execução sequencial.
 
