@@ -7,4 +7,18 @@
 4. [Tarefas Paralelas](tasks.md)
 5. [Pragmas Úteis]()
 6. [OpenMP e Manipulação de Arquivos]()
-7. [Otimizando Algoritmos](algorithms.md)
+7. [Paralelizando Algoritmos Clássicos da Computação](algorithms.md)
+
+## Material Extra
+
+- [Slides FW Cruz]()
+- [Prof. Bruno Ribas - Introdução ao OpenMP](https://www.youtube.com/watch?v=qRi9AD90q0Y) -> Introdução ao OpenMP conduzida pelo prof. Bruno Ribas, durante a matéria de PSPD no semestre 2021.1
+- [Prof. Bruno Ribas - Buscando Números no OpenMP](https://www.youtube.com/watch?v=j49MvX-8ScQ) -> Reflexões sobre otimização da leitura de arquivos em paralelo.
+
+## Exercícios Resolvidos
+
+1. A Fazer...
+
+## Bibliografia
+
+TROBEC, Roman; SLIVNIK, Boštjan; BULIĆ, Patricio; ROBIČ, Borut. **Introduction to Parallel Computing: From Algorithms to Programming on State-of-the-Art Platforms.** 1. ed. Cham: Springer, 2018.
