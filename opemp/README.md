@@ -7,4 +7,4 @@
 4. [Tarefas Paralelas](tasks.md)
 5. [Pragmas Úteis]()
 6. [OpenMP e Manipulação de Arquivos]()
-7. [Otimizando Algoritmos]()
+7. [Otimizando Algoritmos](algorithms.md)
