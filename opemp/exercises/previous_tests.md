@@ -22,19 +22,28 @@ int main(int argc, char *argv[]) {
 ```
 
 **Afirmações:**
+
 I - A execução com o comando `OMP_NUM_THREADS=4 t1` vai imprimir o valor 40.
+
 II - Se a linha 9 for suprimida, o binário equivalente acionado com o comando `OMP_NUM_THREADS=3 t1` imprimirá sempre o valor 30.
+
 III - Se na linha 7 for acrescentada a declaração `private(i)` e houver supressão da linha 9, o binário equivalente acionado com o comando `OMP_NUM_THREADS=6 t1`, o programa vai imprimir 60.
 
 **Alternativas:**
 
 a. Apenas a afirmativa I está correta
+
 b. Apenas as afirmativas I e II estão corretas
+
 c. Apenas as afirmativas I e III estão corretas
+
 d. Nenhuma das opções apresentadas corresponde às afirmativas apresentadas
+
 e. Apenas as afirmativas II e III estão corretas
 
-**Resposta correta:** Nenhuma das opções apresentadas corresponde às afirmativas apresentadas
+**Resposta correta:**
+
+Nenhuma das opções apresentadas corresponde às afirmativas apresentadas
 
 ---
 
@@ -72,8 +81,11 @@ int main() {
 3. Esse código é mais apropriado para funcionar em arquiteturas UMA (Uniform Memory Access) ou de memória compartilhada do que em arquiteturas NUMA (Non Uniform Memory Access).
 
 **Resposta correta:**
+
 1 - Errada
+
 2 - Errada
+
 3 - Certa
 
 ---
@@ -104,13 +116,19 @@ int main(int argc, char *argv[]) {
 ```
 
 **Afirmações:**
+
 I - A execução com o comando `OMP_NUM_THREADS=4 t1` vai imprimir que cada thread foi executada 25 vezes.
+
 II - Se este programa for acionado tendo a variável `OMP_NUM_THREADS` um valor maior do que o número de núcleos da máquina, apenas as threads equivalentes ao número de núcleos serão criadas
+
 III - Se o programa for executado numa máquina com 10 núcleos de processamento e a variável `OMP_NUM_THREADS` estiver com valor igual a 20, o programa não será ativado
 
 **Resposta Correta:**
+
 1 - Errada
+
 2 - Errada
+
 3 - Errada
 
 ---
@@ -140,14 +158,21 @@ int main(int argc, char* argv[]){
 } /*fim-main*/
 ```
 **Alternativas:**
+
 I - O escalonamento com static,1 produz um desempenho pior do que escalonamento com dynamic,1
+
 II - O escalonamento com static,2 produz um desempenho melhor do que o escalonamento com static,1
+
 III - O escalonamento com static,3 tem desempenho pior do que o escalonamento com dynamic,2
 
 **Resposta Correta:**
+
 I - Certo
+
 II - Errado
+
 III - Certo
+
 
 ---
 
@@ -168,18 +193,28 @@ int main(void) {
     return 0;
 }
 ```
-**Alternativas:**
+**Afirmações:**
+
 I - A execução com o comando `OMP_NUM_THREADS=4 t1` vai imprimir o valor 4 na linha 5 e o valor 12 na linha 10, se o computador onde esse programa estiver rodando tiver 12 núcleos
+
 II - Este programa vai imprimir sempre o valor 1 na linha 5, independente do número de threads definidas na variável `OMP_NUM_THREADS`
+
 III - O comando da linha 10 vai imprimir sempre o valor 1, uma vez que este está fora da região paralela definida pelo pragma omp parallel
 
+**Alternativas:**
+
 a. Nenhuma das opções consegue julgar as afirmativas apresentadas
+
 b. Apenas as afirmativas I e II estão corretas
+
 c. Apenas as afirmativas I e III estão corretas
+
 d. Apenas as afirmativas II e III estão corretas
+
 e. Apenas a afirmativa I está correta
 
 **Resposta Correta:**
+
 Nenhuma das opções consegue julgar as afirmativas apresentadas
 
 ---
