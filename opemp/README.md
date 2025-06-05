@@ -10,7 +10,7 @@
 
 ## Material Extra
 
-- [Slides FW Cruz]()
+- [Material FW Cruz](materiais_fw_cruz/)
 - [Prof. Bruno Ribas - Introdução ao OpenMP](https://www.youtube.com/watch?v=qRi9AD90q0Y) -> Introdução ao OpenMP conduzida pelo prof. Bruno Ribas, durante a matéria de PSPD no semestre 2021.1
 - [Prof. Bruno Ribas - Buscando Números no OpenMP](https://www.youtube.com/watch?v=j49MvX-8ScQ) -> Reflexões sobre otimização da leitura de arquivos em paralelo.
 
