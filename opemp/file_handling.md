@@ -1,6 +1,7 @@
 # OpenMP
 
 ### Manipulação de Arquivos
+No código abaixo, procuramos a quantidade de ocorrências de um determinado número dentro de um arquivo de números (um por linha) gerados aleatoriamente. 
 
 ```c
 #include <stdio.h>

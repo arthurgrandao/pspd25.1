@@ -5,9 +5,8 @@
 2. [Utilizando OpenMP para Escrever Programas Multithreaded](using_openmp.md)
 3. [Paralelizando Loops](loops.md)
 4. [Tarefas Paralelas](tasks.md)
-5. [Pragmas Úteis]()
-6. [OpenMP e Manipulação de Arquivos]()
-7. [Paralelizando Algoritmos Clássicos da Computação](algorithms.md)
+5. [OpenMP e Manipulação de Arquivos](file_handling.md)
+6. [Paralelizando Algoritmos Clássicos da Computação](algorithms.md)
 
 ## Material Extra
 
@@ -17,7 +16,7 @@
 
 ## Exercícios Resolvidos
 
-1. A Fazer...
+1. [Provas Anteriores](exercises/previous_tests.md)
 
 ## Bibliografia
 
