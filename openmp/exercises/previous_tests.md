@@ -1,4 +1,4 @@
-# Exercícios de Provas Anteriores
+# Questões de Provas Anteriores
 
 ## Questão 1
 

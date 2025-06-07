@@ -4,6 +4,6 @@ Este repositório contém materiais de estudo, resumos, exemplos de código e an
 
 ## 📚 Tópicos abordados
 
-1. [MPI (Message Passing Interface)](mpi/IntroMPI.md)
-2. [OpenMP](opemp/README.md)
+1. [MPI (Message Passing Interface)](mpi/README.md)
+2. [OpenMP](openmp/README.md)
 3. [CUDA]()
