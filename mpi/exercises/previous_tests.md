@@ -4,6 +4,55 @@
 
 Elabore um programa MPI com N processos, sendo o master o responsável por inicializar o vetor e os slaves, responsáveis por imprimir uma porção do vetor, proporcional ao número de slaves identificados pelo programa.
 
+**Possível Solução**:
+
+```c
+#include <stdio.h>
+#include <stdlib.h>
+#include <mpi.h>
+#define MASTER 0
+#define N 100
+
+int main(int argc, char * argv[]) {
+    MPI_Init(&argc, &argv);
+    int rank, size;
+    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+    MPI_Comm_size(MPI_COMM_WORLD, &size);
+
+    if (size < 2) {
+        if (rank == MASTER)
+            printf("Necessário ter ao menos 2 processos\n");
+        MPI_Finalize();
+        return 0;
+    }
+
+    if (rank == MASTER) {
+        int * v = (int *) malloc(N * sizeof(int));
+        for (int i = 0; i < N; i++) v[i] = i;
+        int chunk = N/(size - 1), remainder = N % (size - 1), offset = 0;
+
+        for (int i = 1; i < size; i++) {
+            int count = chunk + (i <= remainder ? 1 : 0);
+            MPI_Send(&count, 1, MPI_INT, i, 0, MPI_COMM_WORLD);
+            MPI_Send(&v[offset], count, MPI_INT, i, 0, MPI_COMM_WORLD);
+            offset += count;
+        }
+        free(v);
+    } else {
+        int chunk;
+        MPI_Recv(&chunk, 1, MPI_INT, MASTER, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+        int * recvbuff = (int *) malloc(chunk * sizeof(int));
+        MPI_Recv(recvbuff, chunk, MPI_INT, MASTER, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+        printf("Process %d/%d (%d elements): ", rank, size, chunk);
+        for (int i = 0; i < chunk; i++) printf("%d ", recvbuff[i]);
+        printf("\n");
+        free(recvbuff);
+    }
+    MPI_Finalize();
+    return 0;
+}
+```
+
 ---
 
 ## Questão 2
