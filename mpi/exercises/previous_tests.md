@@ -81,6 +81,41 @@ int main(void) {
     return 0;
 }
 ```
+**Possível solução:**
+
+```c
+#include <stdio.h>
+#include <stdlib.h>
+#include <mpi.h>
+#define MASTER 0
+#define NUM_STEPS 8000000
+
+int main(int argc, char * argv[]) {
+    MPI_Init(&argc, &argv);
+    int rank, size;
+    double total_sum = 0.0, x, sum = 0.0, step = 1.0 / (double) NUM_STEPS;
+    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+    MPI_Comm_size(MPI_COMM_WORLD, &size);
+
+    int steps_per_process = NUM_STEPS/size;
+    int start = rank * steps_per_process;
+    int end = (rank == size - 1) ? NUM_STEPS : (rank + 1) * steps_per_process;
+
+    for (int i = start; i < end; i++) {
+        x = (i + 0.5) * step;
+        sum += 4.0 / (1.0 + x * x);
+    }
+
+    MPI_Reduce(&sum, &total_sum, 1, MPI_DOUBLE, MPI_SUM, MASTER, MPI_COMM_WORLD);
+    
+    if (rank == MASTER) {
+        double pi = total_sum * step;
+        printf("Pi = %.16f\n", pi);
+    }
+    MPI_Finalize();
+    return 0;
+}
+```
 
 ---
 
@@ -179,6 +214,52 @@ int main(int argc, char* argv[]) {
 } /* fim-main */
 ```
 
+**Possível solução:**
+```c
+#include <stdio.h>
+#include <stdlib.h>
+#include <mpi.h>
+
+#define MASTER 0
+
+int main(int argc, char* argv[]) {
+    int rank, nprocs, *v, tamvet;
+    MPI_Init(&argc, &argv);
+    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+    MPI_Comm_size(MPI_COMM_WORLD, &nprocs);
+
+    if (rank == MASTER) {
+        printf("Tamanho do vetor: ");
+        fflush(stdout);
+        scanf("%d", &tamvet);
+        v = (int *) malloc(tamvet * sizeof(int));
+        for (int i = 0; i < tamvet; i++) v[i] = (i + 1) * 10;
+
+        int chunk = tamvet/nprocs;
+        int remainder = tamvet % nprocs;
+        int offset = 0;
+        for (int i = 0; i < nprocs; i++) {
+            int base = chunk + (i < remainder ? 1 : 0);
+            MPI_Send(&base, 1, MPI_INT, i, 0, MPI_COMM_WORLD);
+            MPI_Send(&v[offset], base, MPI_INT, i, 0, MPI_COMM_WORLD);
+            offset += base;
+        }
+        free(v);
+    }
+
+    MPI_Recv(&tamvet, 1, MPI_INT, MASTER, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+    v = (int *) malloc(tamvet * sizeof(int));
+    MPI_Recv(v, tamvet, MPI_INT, MASTER, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+
+    printf("%d/%d (tamanho %d): ", rank, nprocs, tamvet);
+    for (int i = 0; i < tamvet; i++) printf("%d ", v[i]);
+    printf("\n");
+    free(v);
+    MPI_Finalize();
+    return 0;
+}
+```
+
 ---
 
 ## Questão 5
@@ -189,6 +270,65 @@ Utilizando a biblioteca MPI, elabore um programa multi-processos para somar os e
 - Supor que as matrizes são de 16 posições e as matrizes A e B devem ser inicializadas com números randômicos
 - As operações de soma devem ser distribuídas uniformemente entre os workers;
 - Ao final, a matriz C resultante deve ser impressa (em colunas, formato de matriz) pelo processo master
+
+**Possível solução:**
+
+```c
+#include <stdio.h>
+#include <stdlib.h>
+#include <mpi.h>
+#define MASTER 0
+#define N 4
+
+int main(int argc, char * argv[]) {
+    MPI_Init(&argc, &argv);
+    int rank, size, a_line[N], b_line[N], c_line[N];
+    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+    MPI_Comm_size(MPI_COMM_WORLD, &size);
+
+    if (rank == MASTER) {
+        int A[N][N], B[N][N], C[N][N];
+        printf("Master: iniciando as matrizes\n");
+        printf("Matriz A:\n");
+        for (int i = 0; i < N; i++) {
+            for (int j = 0; j < N; j++) {
+                A[i][j] = rand() % 10;
+                printf("%d ", A[i][j]);
+            }
+            printf("\n");
+        }
+        
+        printf("Matriz B:\n");
+        for (int i = 0; i < N; i++) {
+            for (int j = 0; j < N; j++) {
+                B[i][j] = rand() % 10;
+                printf("%d ", B[i][j]);
+            }
+            printf("\n");
+        }
+
+        for (int i = 1; i < size; i++) {
+            MPI_Send(A[i - 1], N, MPI_INT, i, 0, MPI_COMM_WORLD);
+            MPI_Send(B[i - 1], N, MPI_INT, i, 0, MPI_COMM_WORLD);
+        }
+
+        for (int i = 1; i < size; i++) MPI_Recv(C[i - 1], N, MPI_INT, i, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+
+        printf("Matriz C (resultado):\n");
+        for (int i = 0; i < N; i++) {
+            for (int j = 0; j < N; j++) printf("%d ", C[i][j]);
+            printf("\n");
+        }
+    } else {
+        MPI_Recv(a_line, N, MPI_INT, MASTER, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+        MPI_Recv(b_line, N, MPI_INT, MASTER, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+        for (int i = 0; i < N; i++) c_line[i] = a_line[i] + b_line[i];
+        MPI_Send(c_line, N, MPI_INT, MASTER, 0, MPI_COMM_WORLD);
+    }
+    MPI_Finalize();
+    return 0;
+}
+```
 
 ---
 
@@ -204,6 +344,56 @@ Elabore um programa MPI que imprima um vetor de 100 posições (de tipo int), co
 - O número de posições a serem impressas pelo worker deve obedecer a um offset dinâmico, ou seja, um valor randômico – menor que 15 – que é calculado por cada processo, no momento em que é acionado para imprimir o vetor;
 - O programa deve controlar a impressão de modo que o vetor inteiro seja impresso, mas nenhuma posição seja impressa mais de uma vez. Por exemplo, se o worker anterior imprimiu até a posição 18 e o offset dinâmico calculado foi 10, a thread atual deve imprimir da posição 19 considerando 10 posições adiante;
 - A ação dos workers e do master acaba quando o vetor de 100 posições tiver sido todo impresso;
+
+**Possível solução:**
+
+```c
+#include <stdio.h>
+#include <stdlib.h>
+#include <stdbool.h>
+#include <mpi.h>
+#define MASTER 0
+#define N 100
+
+int main(int argc, char * argv[]) {
+    MPI_Init(&argc, &argv);
+    int rank, size, *v, elements = 0, chunk;
+    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+    MPI_Comm_size(MPI_COMM_WORLD, &size);
+
+    if (rank == MASTER) {
+        int proc = 1;
+        v = (int *) malloc(N * sizeof(int));
+        for (int i = 0; i < N; i++) v[i] = i;
+
+        while (elements < N) {
+            chunk = rand() % 15 + 1;
+            if (elements + chunk > N) chunk = N - elements;
+            MPI_Send(&chunk, 1, MPI_INT, proc, 0, MPI_COMM_WORLD);
+            MPI_Send(&v[elements], chunk, MPI_INT, proc, 0, MPI_COMM_WORLD);
+            elements += chunk;
+            proc++;
+            if (proc >= size) proc = 1;
+        }
+        int end_signal = 0;
+        for (int i = 1; i < size; i++)
+            MPI_Send(&end_signal, 1, MPI_INT, i, 0, MPI_COMM_WORLD);
+    } else {
+        while (true) {
+            MPI_Recv(&chunk, 1, MPI_INT, MASTER, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+            if (chunk == 0) break;
+            v = (int *) malloc(chunk * sizeof(int));
+            MPI_Recv(v, chunk, MPI_INT, MASTER, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+            printf("Process %d/%d (size %d): ", rank, size, chunk);
+            for (int i = 0; i < chunk; i++) printf("%d ", v[i]);
+            printf("\n");
+            free(v);
+        }
+    }
+    MPI_Finalize();
+    return 0;
+}
+```
 
 ---
 
