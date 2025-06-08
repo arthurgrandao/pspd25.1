@@ -6,4 +6,4 @@ Este repositório contém materiais de estudo, resumos, exemplos de código e an
 
 1. [MPI (Message Passing Interface)](mpi/README.md)
 2. [OpenMP](openmp/README.md)
-3. [CUDA]()
+3. [CUDA](cuda/README.md)
