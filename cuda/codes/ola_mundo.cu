@@ -6,5 +6,6 @@ __global__ void ola_cuda() {
 
 int main() {
 	ola_cuda<<<1, 1>>>();
+	cudaDeviceSynchronize();
 	return 0;
 }
