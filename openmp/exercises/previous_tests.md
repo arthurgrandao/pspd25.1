@@ -223,7 +223,7 @@ Nenhuma das opções consegue julgar as afirmativas apresentadas
 
 Sabe-se que #pragma omp parallel for faz a divisão de iterações do laço de execução entre as threads instanciadas no momento da execução. Elabore um programa que seja capaz de manipular um vetor de entrada com tamanho aleatório e que possa identificar/imprimir o número de índices do vetor de entrada que cada thread do programa ficou responsável (número de iterações por thread) com o pragma citado.
 
-Resposta:
+**Resposta:**
 
 ```c
 #include <stdio.h>
@@ -248,6 +248,53 @@ int main(int argc, char *argv[]) {
     }
 
     return 0;
+}
+```
+
+**Resposta Alternativa:**
+```c
+#include <stdio.h>
+#include <omp.h>
+#include <stdlib.h>
+#include <string.h>
+
+typedef struct indices {
+  int inicio;
+  int fim;
+} indices;
+
+int main(void) {
+  srand(42);
+  int tam = rand() % 1000 + 1;
+  int vetor[tam];
+  memset(&vetor, 0, 4*tam);
+
+  int num_threads = omp_get_max_threads();
+  
+  indices *ind = calloc(num_threads, sizeof(indices));
+
+  printf("Número de threads: %d\n", num_threads);
+  printf("Tamanho do vetor: %d\n", tam);
+
+  #pragma omp parallel for 
+  for (int i = 0; i < tam; i++) {
+    int tid = omp_get_thread_num();
+    if (ind[tid].inicio == 0 && ind[tid].fim == 0 && tid) {
+      ind[tid].inicio = i;
+      ind[tid].fim = i;
+    } else {
+      if (i < ind[tid].inicio) ind[tid].inicio = i;
+      if (i > ind[tid].fim) ind[tid].fim = i;
+    }
+
+    vetor[i] = omp_get_thread_num(); // manipula o vetor 
+  }
+  
+  // Extrai o resultado
+  for (int i = 0; i < num_threads; i++) {
+    printf("Thread %d: inicio = %d, fim = %d\n", i, ind[i].inicio, ind[i].fim);
+  }
+  return 0;
 }
 ```
 
@@ -283,6 +330,38 @@ int main() {
 }
 ```
 
+**Possível Resposta:**
+
+```c
+#include <stdio.h>
+#include <omp.h>
+#define TAM 12
+
+int main() {
+	int A[TAM], B[TAM], C[TAM];
+	int i;
+	for (i = 0; i < TAM; i++) {
+		A[i] = 2*i - 1;
+		B[i] = i + 2;
+	}
+	#pragma omp parallel
+	{
+		int tid = omp_get_thread_num();
+        int num_threads = omp_get_num_threads();
+        int chunk = TAM / num_threads;
+        int start = tid * chunk;
+        int end = (tid == num_threads - 1) ? TAM : start + chunk;
+
+		for (int i = start; i < end; i++) {
+			C[i] = A[i] + B[i];
+			printf("Thread[%d] calculou C[%d]\n", tid, i);
+		}
+	}
+	for (i = 0; i < TAM; i++)
+		printf("C[%d] = %d\n", i, C[i]);
+}
+```
+
 ---
 
 ## Questão 8
@@ -296,6 +375,62 @@ Elabore um programa OpenMP que imprima os elementos de uma matriz M [100:8] posi
 - O número de posições a serem impressas deve obedecer a um offset dinâmico, ou seja, um valor randômico – menor que 15 – que é calculado por cada thread, no momento em que a thread é escalonada para imprimir a matriz
 - O programa deve controlar a impressão de modo que a matriz inteira seja impressa em ordem e de modo que nenhuma posição seja impressa mais de uma vez. Por exemplo, se a matriz já foi impressa até a linha 18 e o offset dinâmico calculado foi 10, a thread atual deve imprimir da linha 19 considerando 10 posições adiante
 - O programa termina quando a matriz M inteira, linha por linha, tiver sido impressa.
+
+**Possível Resposta:**
+
+```c
+#include <stdio.h>
+#include <omp.h>
+#include <stdlib.h>
+
+#define LINHAS 100
+#define COLUNAS 8
+
+int main(void) {
+    srand(42); 
+    int M[LINHAS][COLUNAS];
+    int linhas_impressas = 0;
+
+    #pragma omp parallel shared(M, linhas_impressas)
+    {
+        #pragma omp single
+        {
+            for (int i = 0; i < LINHAS; i++) {
+                for (int j = 0; j < COLUNAS; j++) {
+                    M[i][j] = i + j;
+                }
+            }
+        }
+
+        #pragma omp barrier
+
+        int tid = omp_get_thread_num();
+        
+        while (linhas_impressas < LINHAS) {
+            int offset = rand() % 15;
+            !offset ? offset = 1 : offset;
+
+            #pragma omp critical
+            {
+                if (linhas_impressas + offset > LINHAS) {
+                    offset = LINHAS;
+                }
+
+                for (int i = linhas_impressas; i < linhas_impressas + offset && i < LINHAS; i++) {
+                    printf("Thread %d imprimindo M[%d]: ", tid, i);
+                    for (int j = 0; j < COLUNAS; j++) {
+                        printf("%d ", M[i][j]);
+                    }
+                    printf("\n");
+                }
+                linhas_impressas += offset;
+            }
+        }
+    }
+
+    return 0;
+}
+```
 
 ---
 
@@ -313,8 +448,10 @@ Fazer o programa imprimir um vetor de 100 posições em ordem. Inicie o vetor co
 #define SIZE 100
 
 int main() {
+    srand(42); 
     int v[SIZE];
-    int start = 0, end = 0, offset;
+    int num_impressos = 0;
+    int offset;
 
     for (int i = 0; i < SIZE; i++) {
         v[i] = i;
@@ -322,22 +459,26 @@ int main() {
 
     #pragma omp parallel
     {
-        while (end < SIZE) {
+        while (num_impressos < SIZE) {
+            offset = rand() % 15;
+            if (offset == 0) offset = 1;
+
             #pragma omp critical
             {
-                offset = rand() % 15;
-                offset = offset + start < SIZE ? offset : SIZE - offset;
-                end = start + offset;
+                if (num_impressos < SIZE) {
+                    int tid = omp_get_thread_num();
+                    int limite = num_impressos + offset;
+                    if (limite > SIZE) limite = SIZE;
 
-                int tid = omp_get_thread_num();
-                printf("TID %d, start %3d, offset %3d, end %3d\n", tid, start, offset, end);
-
-                for (int i = start; i < end; i++) {
-                    printf("%d \n", v[i]);
+                    printf("\nTID %d, %d->%d:\n", tid, num_impressos, limite);
+                    for (int i = num_impressos; i < limite; i++) {
+                        printf("%d ", v[i]);
+                    }
+                    num_impressos = limite;
                 }
-                start += offset;
             }
         }
     }
+    return 0;
 }
 ```
