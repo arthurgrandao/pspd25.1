@@ -17,6 +17,7 @@
 ## Exercícios Resolvidos
 
 1. [Provas Anteriores](exercises/previous_tests.md)
+2. [Questões de Treino](exercises/training.md)
 
 ## Bibliografia
 
